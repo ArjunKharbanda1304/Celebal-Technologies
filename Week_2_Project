@@ -1,0 +1,102 @@
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None  # initially, the next is nothing
+
+
+class LinkedList:
+    def __init__(self):
+        self.head = None  # start with an empty list
+
+    def append(self, data):
+        """Add a node to the end of the list."""
+        new_node = Node(data)
+        if not self.head:
+            # if list is empty, new node becomes head
+            self.head = new_node
+            return
+        # otherwise, go till the last node and link it
+        current = self.head
+        while current.next:
+            current = current.next
+        current.next = new_node
+
+    def print_list(self):
+        """Print all elements of the list."""
+        if not self.head:
+            print("List is empty.")
+            return
+        current = self.head
+        while current:
+            print(current.data, end=" -> ")
+            current = current.next
+        print("None")
+
+    def delete_nth_node(self, n):
+        """Delete the nth node (1-based index)."""
+        try:
+            if not self.head:
+                raise Exception("Can't delete from an empty list.")
+
+            if n <= 0:
+                raise ValueError("Index should be 1 or greater.")
+
+            if n == 1:
+                # delete the head node
+                self.head = self.head.next
+                return
+
+            # find the (n-1)th node
+            current = self.head
+            for i in range(n - 2):
+                if not current.next:
+                    raise IndexError("Index out of range.")
+                current = current.next
+
+            # now current is (n-1)th node
+            if not current.next:
+                raise IndexError("Index out of range.")
+
+            current.next = current.next.next  # skip the nth node
+
+        except Exception as e:
+            print("Error:", e)
+
+
+# Test the LinkedList class
+if __name__ == "__main__":
+    my_list = LinkedList()
+
+    # adding some elements
+    my_list.append(10)
+    my_list.append(20)
+    my_list.append(30)
+    my_list.append(40)
+
+    print("Initial list:")
+    my_list.print_list()
+
+    # deleting 3rd element
+    print("\nDeleting 3rd element:")
+    my_list.delete_nth_node(3)
+    my_list.print_list()
+
+    # trying to delete an invalid index
+    print("\nTrying to delete 10th element:")
+    my_list.delete_nth_node(10)
+
+    # deleting head
+    print("\nDeleting head (1st element):")
+    my_list.delete_nth_node(1)
+    my_list.print_list()
+
+    # deleting remaining nodes
+    my_list.delete_nth_node(1)
+    my_list.delete_nth_node(1)
+
+    print("\nList after deleting all elements:")
+    my_list.print_list()
+
+    # deleting from empty list
+    print("\nTrying to delete from empty list:")
+    my_list.delete_nth_node(1)
