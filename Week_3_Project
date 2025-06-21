@@ -1,1 +1,118 @@
+# Titanic Dataset - Exploratory Data Analysis (EDA)
+# Author: Arjun Kharbanda
 
+# Import required libraries
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+from sklearn.ensemble import RandomForestRegressor
+
+# Load dataset
+titanic_data = sns.load_dataset('titanic')
+titanic_data.head()
+
+# Check dataset structure
+print("Dataset shape:", titanic_data.shape)
+print("\nMissing values:\n", titanic_data.isnull().sum())
+print("\nMissing values (%):\n", (titanic_data.isnull().sum() / len(titanic_data)) * 100)
+
+# Heatmap for missing values
+plt.figure(figsize=(10, 6))
+sns.heatmap(titanic_data.isnull(), cbar=False, cmap='viridis', yticklabels=False)
+plt.title('Missing Values Heatmap')
+plt.show()
+
+# Imputation
+titanic_data_filled = titanic_data.copy()
+num_cols = titanic_data_filled.select_dtypes(include=['number']).columns
+cat_cols = titanic_data_filled.select_dtypes(exclude=['number']).columns
+
+imputer = IterativeImputer(estimator=RandomForestRegressor(), random_state=0)
+titanic_data_filled[num_cols] = imputer.fit_transform(titanic_data_filled[num_cols])
+
+for col in cat_cols:
+    titanic_data_filled[col] = titanic_data_filled[col].fillna(titanic_data_filled[col].mode()[0])
+
+print("\nMissing values after imputation:\n", titanic_data_filled.isnull().sum())
+
+# Univariate Analysis
+sns.countplot(x='survived', data=titanic_data_filled)
+plt.title('Survival Count')
+plt.show()
+
+sns.countplot(x='pclass', data=titanic_data_filled)
+plt.title('Passenger Class Distribution')
+plt.show()
+
+sns.histplot(x='age', data=titanic_data_filled, kde=True)
+plt.title('Age Distribution')
+plt.show()
+
+sns.countplot(x='sex', data=titanic_data_filled)
+plt.title('Sex Distribution')
+plt.show()
+
+# Bivariate Analysis
+sns.countplot(x='sex', hue='survived', data=titanic_data_filled)
+plt.title('Survival by Gender')
+plt.show()
+
+sns.countplot(x='pclass', hue='survived', data=titanic_data_filled)
+plt.title('Survival by Passenger Class')
+plt.show()
+
+titanic_data_filled['age_group'] = pd.cut(titanic_data_filled['age'], bins=[0, 18, 65, 100], labels=['Child', 'Adult', 'Senior'])
+
+sns.countplot(x='age_group', hue='survived', data=titanic_data_filled)
+plt.title('Survival by Age Group')
+plt.show()
+
+sns.catplot(x='sex', hue='survived', col='pclass', kind='count', data=titanic_data_filled)
+plt.show()
+
+# Embarkation Analysis
+sns.countplot(x='embarked', hue='survived', data=titanic_data, palette='Spectral')
+plt.title('Survival Based on Embarkation Point')
+plt.xlabel('Embarkation Point')
+plt.ylabel('Count')
+plt.legend(title='Survived', labels=['No', 'Yes'])
+plt.show()
+
+# Fare Distribution
+sns.histplot(titanic_data, x='fare', hue='survived', bins=20, kde=True, palette='viridis')
+plt.title('Fare Distribution by Survival')
+plt.xlabel('Fare')
+plt.ylabel('Count')
+plt.show()
+
+# Family Size Analysis
+titanic_data['family_size'] = titanic_data['sibsp'] + titanic_data['parch']
+sns.countplot(x='family_size', hue='survived', data=titanic_data, palette='cubehelix')
+plt.title('Survival Based on Family Size')
+plt.xlabel('Family Size')
+plt.ylabel('Count')
+plt.legend(title='Survived', labels=['No', 'Yes'])
+plt.show()
+
+# Feature Engineering: Age Group
+bins = [0, 12, 18, 40, 60, 80]
+labels = ['Child', 'Teenager', 'Adult', 'Middle-aged', 'Senior']
+titanic_data['age_group'] = pd.cut(titanic_data['age'], bins=bins, labels=labels)
+
+sns.countplot(x='age_group', hue='survived', data=titanic_data, palette='magma')
+plt.title('Survival Based on Age Group')
+plt.xlabel('Age Group')
+plt.ylabel('Count')
+plt.legend(title='Survived', labels=['No', 'Yes'])
+plt.show()
+
+# Correlation Heatmap
+plt.figure(figsize=(12, 8))
+numeric = titanic_data.select_dtypes(include=np.number)
+sns.heatmap(numeric.corr(), annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Feature Correlation Heatmap')
+plt.show()
