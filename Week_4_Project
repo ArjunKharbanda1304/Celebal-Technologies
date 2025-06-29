@@ -1,0 +1,93 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Display settings
+sns.set(style="whitegrid")
+plt.style.use('seaborn-poster')
+
+# Load the dataset
+df = pd.read_csv('titanic.csv')  # Ensure the Titanic dataset is in the same directory or provide full path
+
+# Basic Overview
+print("Dataset Shape:", df.shape)
+print("\nFirst 5 Rows:\n", df.head())
+print("\nDataset Info:")
+df.info()
+print("\nStatistical Summary:\n", df.describe(include='all'))
+
+# Check for Missing Values
+print("\nMissing Values:\n", df.isnull().sum())
+plt.figure(figsize=(10,6))
+sns.heatmap(df.isnull(), cbar=False, cmap="viridis")
+plt.title("Missing Values Heatmap")
+plt.show()
+
+# Univariate Analysis
+
+## Categorical Variables
+categorical = ['Sex', 'Pclass', 'Embarked', 'Survived']
+for col in categorical:
+    plt.figure(figsize=(6,4))
+    sns.countplot(x=col, data=df, palette="Set2")
+    plt.title(f"Distribution of {col}")
+    plt.show()
+
+## Numerical Variables
+numerical = ['Age', 'Fare']
+for col in numerical:
+    plt.figure(figsize=(6,4))
+    sns.histplot(df[col], kde=True, color="skyblue")
+    plt.title(f"Distribution of {col}")
+    plt.show()
+
+# Outlier Detection with Boxplots
+for col in numerical:
+    plt.figure(figsize=(6,4))
+    sns.boxplot(x=df[col], color="orange")
+    plt.title(f"Boxplot of {col}")
+    plt.show()
+
+# Bivariate Analysis
+
+## Survival Rate by Gender
+plt.figure(figsize=(6,4))
+sns.countplot(x='Sex', hue='Survived', data=df, palette="Set1")
+plt.title("Survival Rate by Gender")
+plt.show()
+
+## Survival Rate by Passenger Class
+plt.figure(figsize=(6,4))
+sns.countplot(x='Pclass', hue='Survived', data=df, palette="Set1")
+plt.title("Survival Rate by Passenger Class")
+plt.show()
+
+## Age Distribution by Survival
+plt.figure(figsize=(6,4))
+sns.histplot(data=df, x='Age', hue='Survived', kde=True, element='step', palette="Set1")
+plt.title("Age Distribution by Survival")
+plt.show()
+
+## Fare Distribution by Survival
+plt.figure(figsize=(6,4))
+sns.histplot(data=df, x='Fare', hue='Survived', kde=True, element='step', palette="Set1")
+plt.title("Fare Distribution by Survival")
+plt.show()
+
+# Correlation Heatmap
+plt.figure(figsize=(8,6))
+corr = df.corr(numeric_only=True)
+sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f')
+plt.title("Correlation Heatmap")
+plt.show()
+
+# Conclusion Summary
+print("\n✅ KEY FINDINGS:")
+print("- Missing values in 'Age', 'Cabin', 'Embarked' detected.")
+print("- Higher survival rates observed for females and passengers in higher classes (Pclass=1).")
+print("- Outliers detected in 'Fare' variable.")
+print("- Positive correlation between Fare and Survival; negative correlation between Pclass and Survival.")
+
+print("\nEDA Completed Successfully.")
