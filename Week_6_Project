@@ -1,0 +1,62 @@
+# Import libraries
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
+from sklearn.datasets import load_iris
+
+# Import models
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+
+# Load dataset
+data = load_iris()
+X, y = data.data, data.target
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Define models
+models = {
+    "Random Forest": RandomForestClassifier(),
+    "SVM": SVC(),
+    "Logistic Regression": LogisticRegression(max_iter=1000)
+}
+
+# Function to evaluate models
+def evaluate_model(name, model):
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    print(f"\n=== {name} ===")
+    print("Accuracy:", accuracy_score(y_test, y_pred))
+    print("Precision:", precision_score(y_test, y_pred, average='weighted'))
+    print("Recall:", recall_score(y_test, y_pred, average='weighted'))
+    print("F1-Score:", f1_score(y_test, y_pred, average='weighted'))
+    print(classification_report(y_test, y_pred))
+
+# Evaluate each model
+for name, model in models.items():
+    evaluate_model(name, model)
+
+# Hyperparameter Tuning: Random Forest with GridSearchCV
+param_grid_rf = {
+    'n_estimators': [50, 100, 150],
+    'max_depth': [None, 5, 10],
+    'min_samples_split': [2, 5, 10]
+}
+grid_rf = GridSearchCV(RandomForestClassifier(), param_grid_rf, cv=5, scoring='accuracy')
+grid_rf.fit(X_train, y_train)
+print("\nBest parameters for Random Forest (GridSearchCV):", grid_rf.best_params_)
+evaluate_model("Tuned Random Forest", grid_rf.best_estimator_)
+
+# Hyperparameter Tuning: SVM with RandomizedSearchCV
+param_dist_svm = {
+    'C': np.logspace(-3, 2, 6),
+    'kernel': ['linear', 'rbf', 'poly'],
+    'gamma': ['scale', 'auto']
+}
+random_svm = RandomizedSearchCV(SVC(), param_dist_svm, n_iter=10, cv=5, scoring='accuracy', random_state=42)
+random_svm.fit(X_train, y_train)
+print("\nBest parameters for SVM (RandomizedSearchCV):", random_svm.best_params_)
+evaluate_model("Tuned SVM", random_svm.best_estimator_)
