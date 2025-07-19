@@ -1,0 +1,28 @@
+# ⛔ Do NOT commit virtual environments
+venv/
+env/
+rag-env/
+
+# ⛔ Do NOT commit Python cache files
+__pycache__/
+*.pyc
+
+# ⛔ Do NOT commit environment or secrets
+.env
+
+# ⛔ Do NOT commit OS/system files
+.DS_Store
+
+# ⛔ Do NOT commit logs, datasets, or binary artifacts
+*.log
+*.csv
+*.db
+*.sqlite
+*.pkl
+*.pt
+*.h5
+*.bin
+*.weights
+
+# ⛔ Do NOT commit frontend/node files (if any)
+node_modules/
